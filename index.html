@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>বাংলাদেশ নামাজের সময়সূচী</title>
+    <style>
+        body {
+            font-family: 'SolaimanLipi', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #0d6e6e, #0a5a5a);
+            color: white;
+            text-align: center;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .control-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        select, button {
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        
+        button {
+            background: #0d6e6e;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #0a5a5a;
+        }
+        
+        .prayer-times {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .prayer-header {
+            color: #0d6e6e;
+            border-bottom: 2px solid #ff9800;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        .prayer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .prayer-card {
+            background: #e9f7f7;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .prayer-card.active {
+            background: #0d6e6e;
+            color: white;
+        }
+        
+        .prayer-card.active .prayer-time {
+            color: #fff;
+        }
+        
+        .prayer-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .prayer-time {
+            font-size: 1.2rem;
+            color: #ff9800;
+        }
+        
+        .date-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-card h3 {
+            color: #0d6e6e;
+            margin-top: 0;
+        }
+        
+        footer {
+            background: #0d6e6e;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .prayer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">বাংলাদেশ নামাজের সময়সূচী</div>
+        <p>জেলাভিত্তিক সঠিক নামাজের সময় ও ইসলামিক তথ্য</p>
+    </header>
+    
+    <div class="container">
+        <div class="control-panel">
+            <select id="district-select">
+                <option value="">জেলা নির্বাচন করুন</option>
+                <option value="dhaka">ঢাকা</option>
+                <option value="chittagong">চট্টগ্রাম</option>
+                <option value="sylhet">সিলেট</option>
+                <option value="rajshahi">রাজশাহী</option>
+                <option value="khulna">খুলনা</option>
+                <option value="barisal">বরিশাল</option>
+                <option value="rangpur">রংপুর</option>
+                <option value="mymensingh">ময়মনসিংহ</option>
+            </select>
+            
+            <button id="update-btn">সময় আপডেট করুন</button>
+            <button id="notification-btn">আজানের নোটিফিকেশন সেট করুন</button>
+        </div>
+        
+        <div class="date-info">
+            <div id="hijri-date">আজ: ২৯ শাওয়াল, ১৪৪৫ হিজরি</div>
+            <div id="gregorian-date"></div>
+            <div id="location">স্থান: নির্বাচিত জেলা দেখানো হবে</div>
+        </div>
+        
+        <div class="prayer-times">
+            <h2 class="prayer-header">আজকের নামাজের সময়</h2>
+            <div class="prayer-grid">
+                <div class="prayer-card" id="fajr-card">
+                    <div class="prayer-name">ফজর</div>
+                    <div class="prayer-time" id="fajr-time">--:--</div>
+                </div>
+                <div class="prayer-card" id="dhuhr-card">
+                    <div class="prayer-name">জোহর</div>
+                    <div class="prayer-time" id="dhuhr-time">--:--</div>
+                </div>
+                <div class="prayer-card" id="asr-card">
+                    <div class="prayer-name">আসর</div>
+                    <div class="prayer-time" id="asr-time">--:--</div>
+                </div>
+                <div class="prayer-card" id="maghrib-card">
+                    <div class="prayer-name">মাগরিব</div>
+                    <div class="prayer-time" id="maghrib-time">--:--</div>
+                </div>
+                <div class="prayer-card" id="isha-card">
+                    <div class="prayer-name">ইশা</div>
+                    <div class="prayer-time" id="isha-time">--:--</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature-card">
+                <h3>কিবলা দিকনির্দেশক</h3>
+                <div id="qibla-direction">
+                    <p>আপনার ফোনের কম্পাস ব্যবহার করে কিবলা দিক নির্দেশ করা হবে</p>
+                    <button id="find-qibla">কিবলা খুঁজুন</button>
+                    <div id="qibla-angle" style="margin-top: 10px;"></div>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <h3>ইসলামিক ক্যালেন্ডার</h3>
+                <div id="islamic-calendar">
+                    <p>বর্তমান হিজরি মাস: <span id="current-hijri-month">শাওয়াল</span></p>
+                    <p>আজকের তারিখ: <span id="today-hijri">২৯ শাওয়াল ১৪৪৫</span></p>
+                    <p>পরবর্তী ইসলামিক ইভেন্ট: <span id="next-event">ঈদ-উল-আযহা</span></p>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <h3>নামাজের শিক্ষা</h3>
+                <div id="prayer-guide">
+                    <p><strong>নামাজের গুরুত্ব:</strong> "নিশ্চয় নামাজ অশ্লীল ও মন্দ কাজ থেকে বিরত রাখে।" (সূরা আনকাবুত: ৪৫)</p>
+                    <p><strong>জামাতের ফজিলত:</strong> রাসূল (সা.) বলেছেন: "জামাতের সাথে নামাজ পড়া একাকী নামাজ পড়ার চেয়ে ২৭ গুণ বেশি ফজিলতপূর্ণ।" (বুখারী)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>নামাজ হলো মুমিনের আরশের উপহার,
+            যে তা কায়েম রাখে, সে পায় পরওয়ারদিগারের প্রহার</p>
+        <p>Towhidul Islam</p>
+    </footer>
+
+    <script>
+        // বাংলাদেশ ইসলামিক ফাউন্ডেশনের API এন্ডপয়েন্ট (ডেমো URL)
+        const API_BASE_URL = 'https://api.aladhan.com/v1/timingsByCity?city=Dhaka&country=Bangladesh&method=1';
+        
+        // জেলাভিত্তিক নামাজের সময় (ডেমো ডেটা)
+        const prayerTimesData = {
+            dhaka: {
+                Fajr: "4:30 AM",
+                Dhuhr: "12:15 PM",
+                Asr: "4:00 PM",
+                Maghrib: "6:25 PM",
+                Isha: "7:45 PM"
+            },
+            chittagong: {
+                Fajr: "4:25 AM",
+                Dhuhr: "12:10 PM",
+                Asr: "3:55 PM",
+                Maghrib: "6:20 PM",
+                Isha: "7:40 PM"
+            },
+            sylhet: {
+                Fajr: "4:20 AM",
+                Dhuhr: "12:05 PM",
+                Asr: "3:50 PM",
+                Maghrib: "6:15 PM",
+                Isha: "7:35 PM"
+            },
+            rajshahi: {
+                Fajr: "4:35 AM",
+                Dhuhr: "12:20 PM",
+                Asr: "4:05 PM",
+                Maghrib: "6:30 PM",
+                Isha: "7:50 PM"
+            },
+            khulna: {
+                Fajr: "4:33 AM",
+                Dhuhr: "12:18 PM",
+                Asr: "4:03 PM",
+                Maghrib: "6:28 PM",
+                Isha: "7:48 PM"
+            },
+            barisal: {
+                Fajr: "4:28 AM",
+                Dhuhr: "12:13 PM",
+                Asr: "3:58 PM",
+                Maghrib: "6:23 PM",
+                Isha: "7:43 PM"
+            },
+            rangpur: {
+                Fajr: "4:38 AM",
+                Dhuhr: "12:23 PM",
+                Asr: "4:08 PM",
+                Maghrib: "6:33 PM",
+                Isha: "7:53 PM"
+            },
+            mymensingh: {
+                Fajr: "4:32 AM",
+                Dhuhr: "12:17 PM",
+                Asr: "4:02 PM",
+                Maghrib: "6:27 PM",
+                Isha: "7:47 PM"
+            }
+        };
+        
+        // DOM এলিমেন্টস
+        const districtSelect = document.getElementById('district-select');
+        const updateBtn = document.getElementById('update-btn');
+        const notificationBtn = document.getElementById('notification-btn');
+        const locationDisplay = document.getElementById('location');
+        const hijriDate = document.getElementById('hijri-date');
+        const gregorianDate = document.getElementById('gregorian-date');
+        
+        // নামাজের সময় এলিমেন্টস
+        const fajrTime = document.getElementById('fajr-time');
+        const dhuhrTime = document.getElementById('dhuhr-time');
+        const asrTime = document.getElementById('asr-time');
+        const maghribTime = document.getElementById('maghrib-time');
+        const ishaTime = document.getElementById('isha-time');
+        
+        // নামাজের কার্ড এলিমেন্টস
+        const fajrCard = document.getElementById('fajr-card');
+        const dhuhrCard = document.getElementById('dhuhr-card');
+        const asrCard = document.getElementById('asr-card');
+        const maghribCard = document.getElementById('maghrib-card');
+        const ishaCard = document.getElementById('isha-card');
+        
+        // তারিখ আপডেট ফাংশন
+        function updateDates() {
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            gregorianDate.textContent = today.toLocaleDateString('bn-BD', options);
+            
+            // হিজরি তারিখ (সিমুলেটেড)
+            const hijriMonths = ['মহররম', 'সফর', 'রবিউল আউয়াল', 'রবিউস সানি', 'জুমাদাল উলা', 
+                                'জুমাদাস সানি', 'রজব', 'শাবান', 'রমজান', 'শাওয়াল', 'জিলকদ', 'জিলহজ'];
+            const hijriDay = 29;
+            const hijriMonth = hijriMonths[9]; // শাওয়াল
+            const hijriYear = 1445;
+            
+            hijriDate.textContent = `আজ: ${hijriDay} ${hijriMonth}, ${hijriYear} হিজরি`;
+        }
+        
+        // নামাজের সময় আপডেট ফাংশন
+        function updatePrayerTimes(district) {
+            if (!district || !prayerTimesData[district]) {
+                alert('দয়া করে একটি জেলা নির্বাচন করুন');
+                return;
+            }
+            
+            const times = prayerTimesData[district];
+            
+            // নামাজের সময় সেট করুন
+            fajrTime.textContent = times.Fajr;
+            dhuhrTime.textContent = times.Dhuhr;
+            asrTime.textContent = times.Asr;
+            maghribTime.textContent = times.Maghrib;
+            ishaTime.textContent = times.Isha;
+            
+            // লোকেশন আপডেট করুন
+            const districtNames = {
+                dhaka: 'ঢাকা',
+                chittagong: 'চট্টগ্রাম',
+                sylhet: 'সিলেট',
+                rajshahi: 'রাজশাহী',
+                khulna: 'খুলনা',
+                barisal: 'বরিশাল',
+                rangpur: 'রংপুর',
+                mymensingh: 'ময়মনসিংহ'
+            };
+            
+            locationDisplay.textContent = `স্থান: ${districtNames[district]}`;
+            
+            // বর্তমান নামাজ হাইলাইট করুন
+            highlightCurrentPrayer();
+        }
+        
+        // বর্তমান নামাজ হাইলাইট ফাংশন
+        function highlightCurrentPrayer() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            
+            // সব কার্ড থেকে অ্যাক্টিভ ক্লাস রিমুভ করুন
+            [fajrCard, dhuhrCard, asrCard, maghribCard, ishaCard].forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // নামাজের সময় পার্স করুন
+            function parseTime(timeStr) {
+                const [time, period] = timeStr.split(' ');
+                const [hours, minutes] = time.split(':').map(Number);
+                let hour24 = hours;
+                
+                if (period === 'PM' && hours !== 12) {
+                    hour24 += 12;
+                } else if (period === 'AM' && hours === 12) {
+                    hour24 = 0;
+                }
+                
+                return { hours: hour24, minutes };
+            }
+            
+            // প্রতিটি নামাজের সময় চেক করুন
+            const prayerTimes = [
+                { card: fajrCard, time: fajrTime.textContent },
+                { card: dhuhrCard, time: dhuhrTime.textContent },
+                { card: asrCard, time: asrTime.textContent },
+                { card: maghribCard, time: maghribTime.textContent },
+                { card: ishaCard, time: ishaTime.textContent }
+            ];
+            
+            let currentPrayerIndex = -1;
+            
+            for (let i = 0; i < prayerTimes.length; i++) {
+                const { time } = prayerTimes[i];
+                if (time === '--:--') continue;
+                
+                const { hours: prayerHour, minutes: prayerMinute } = parseTime(time);
+                
+                if (currentHour > prayerHour || (currentHour === prayerHour && currentMinute >= prayerMinute)) {
+                    currentPrayerIndex = i;
+                } else {
+                    break;
+                }
+            }
+            
+            // যদি শেষ নামাজের পরের সময় হয়, তাহলে পরের দিনের ফজর পর্যন্ত কোন অ্যাক্টিভ থাকবে না
+            if (currentPrayerIndex !== -1 && currentPrayerIndex < prayerTimes.length - 1) {
+                prayerTimes[currentPrayerIndex].card.classList.add('active');
+            }
+        }
+        
+        // কিবলা দিকনির্দেশক ফাংশন
+        function findQiblaDirection() {
+            if (!navigator.geolocation) {
+                alert('আপনার ব্রাউজার জিওলোকেশন সাপোর্ট করে না');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const { latitude, longitude } = position.coords;
+                    // বাংলাদেশের জন্য কিবলা দিক (সিম্পলিফাইড)
+                    const qiblaAngle = 90; // সাধারণত পশ্চিম দিকে
+                    
+                    document.getElementById('qibla-angle').innerHTML = `
+                        <p>আপনার বর্তমান অবস্থান: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}</p>
+                        <p>কিবলা দিক: <strong>পশ্চিম দিকে</strong> (প্রায় ${qiblaAngle} ডিগ্রী)</p>
+                        <p>কিবলা খুঁজে পেতে আপনার ফোনের কম্পাস ব্যবহার করুন</p>
+                    `;
+                },
+                error => {
+                    alert('আপনার লোকেশন পাওয়া যায়নি: ' + error.message);
+                }
+            );
+        }
+        
+        // ইভেন্ট লিসেনারস
+        updateBtn.addEventListener('click', () => {
+            updatePrayerTimes(districtSelect.value);
+        });
+        
+        document.getElementById('find-qibla').addEventListener('click', findQiblaDirection);
+        
+        notificationBtn.addEventListener('click', () => {
+            alert('আজানের নোটিফিকেশন সেট করা হবে। এই ফিচারটি সম্পূর্ণরূপে ইমপ্লিমেন্ট করতে নোটিফিকেশন API ব্যবহার করুন।');
+        });
+        
+        // পেজ লোড হলে ইনিশিয়ালাইজেশন
+        updateDates();
+        setInterval(highlightCurrentPrayer, 60000); // প্রতি মিনিটে হাইলাইট আপডেট
+        
+        // ডেমোর জন্য ঢাকার সময়সূচী লোড করুন
+        window.addEventListener('load', () => {
+            districtSelect.value = 'dhaka';
+            updatePrayerTimes('dhaka');
+        });
+    </script>
+</body>
+</html>
